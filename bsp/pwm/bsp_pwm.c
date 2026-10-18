@@ -103,7 +103,7 @@ static uint32_t PWMSelectTclk(TIM_HandleTypeDef *htim )
             ((tclk_temp <= (APB2PERIPH_BASE + 0x4800UL)) &&
              (tclk_temp >= (APB2PERIPH_BASE + 0x4000UL))))
     {
-        return (HAL_RCC_GetPCLK2Freq() * (APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE1)>> RCC_CFGR_PPRE1_Pos] == 0 ? 1 : 2));
+        return (HAL_RCC_GetPCLK2Freq() * (APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos] == 0 ? 1 : 2));
     }
     return 0;
 }
