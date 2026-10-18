@@ -3,7 +3,7 @@
 #include "stdlib.h"
 
 static uint8_t idx = 0; // 配合中断以及初始化
-static IICInstance *iic_instance[IIC_DEVICE_CNT] = {NULL};
+static IICInstance *iic_instance[MX_IIC_SLAVE_CNT] = {NULL};
 
 IICInstance *IICRegister(IIC_Init_Config_s *conf)
 {
@@ -12,7 +12,6 @@ IICInstance *IICRegister(IIC_Init_Config_s *conf)
             ;
     // 申请到的空间未必是0, 所以需要手动初始化
     IICInstance *instance = (IICInstance *)malloc(sizeof(IICInstance));
-    instance = (IICInstance *)malloc(sizeof(IICInstance));
     memset(instance, 0, sizeof(IICInstance));
 
     instance->dev_address = conf->dev_address << 1; // 地址左移一位,最低位为读写位

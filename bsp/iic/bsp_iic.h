@@ -1,3 +1,6 @@
+#ifndef BSP_IIC_H
+#define BSP_IIC_H
+
 #include "i2c.h"
 #include "stdint.h"
 
@@ -25,8 +28,8 @@ typedef enum
 // 必须以IIC_RELEASE为最后一次传输,否则会导致总线占有权无法释放
 typedef enum
 {
-    IIC_SEQ_RELEASE,    // 完成传输后释放总线占有权,这是默认的传输方式
-    IIC_SEQ_HOLDON = 0, // 保持总线占有权不释放,只支持IT和DMA模式
+    IIC_SEQ_RELEASE, // 完成传输后释放总线占有权,这是默认的传输方式
+    IIC_SEQ_HOLDON,  // 保持总线占有权不释放,只支持IT和DMA模式
 } IIC_Seq_Mode_e;
 
 /* i2c实例 */
@@ -104,3 +107,5 @@ void IICReceive(IICInstance *iic, uint8_t *data, uint16_t size, IIC_Seq_Mode_e m
  * @param mem8bit_flag 从机内存地址是否为8位
  */
 void IICAccessMem(IICInstance *iic, uint16_t mem_addr, uint8_t *data, uint16_t size, IIC_Mem_Mode_e mode, uint8_t mem8bit_flag);
+
+#endif // BSP_IIC_H
