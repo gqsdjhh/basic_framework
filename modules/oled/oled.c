@@ -1,22 +1,22 @@
-#include "oled.h" 
-#include "oledfont.h"
+#include "oled.h"
 #include "main.h"
-#include <stdio.h>
+#include "oledfont.h"
 #include <stdarg.h>
+#include <stdio.h>
 
 extern I2C_HandleTypeDef hi2c2;
 static uint8_t OLED_GRAM[128][8];
 
 /**
-  * @brief          写数据或者指令到OLED， 如果使用的是SPI，请重写这个函数
-  * @param[in]      dat: 要写入的字节
-  * @param[in]      cmd: OLED_CMD 代表写入的字节是指令; OLED_DATA 代表写入的字节是数据
-  * @retval         none
-  */
+ * @brief          写数据或者指令到OLED， 如果使用的是SPI，请重写这个函数
+ * @param[in]      dat: 要写入的字节
+ * @param[in]      cmd: OLED_CMD 代表写入的字节是指令; OLED_DATA 代表写入的字节是数据
+ * @retval         none
+ */
 void oled_write_byte(uint8_t dat, uint8_t cmd)
 {
     static uint8_t cmd_data[2];
-    if(cmd == OLED_CMD)
+    if (cmd == OLED_CMD)
     {
         cmd_data[0] = 0x00;
     }
@@ -28,50 +28,48 @@ void oled_write_byte(uint8_t dat, uint8_t cmd)
     HAL_I2C_Master_Transmit(&hi2c2, OLED_I2C_ADDRESS, cmd_data, 2, 10);
 }
 
-
 /**
-  * @brief          初始化OLED模块，
-  * @param[in]      none
-  * @retval         none
-  */
+ * @brief          初始化OLED模块，
+ * @param[in]      none
+ * @retval         none
+ */
 void OLED_init(void)
 {
-    oled_write_byte(0xAE, OLED_CMD);    //display off
-    oled_write_byte(0x20, OLED_CMD);    //Set Memory Addressing Mode	
-    oled_write_byte(0x10, OLED_CMD);    //00,Horizontal Addressing Mode;01,Vertical Addressing Mode;10,Page Addressing Mode (RESET);11,Invalid
-    oled_write_byte(0xb0, OLED_CMD);    //Set Page Start Address for Page Addressing Mode,0-7
-    oled_write_byte(0xc8, OLED_CMD);    //Set COM Output Scan Direction
-    oled_write_byte(0x00, OLED_CMD);    //---set low column address
-    oled_write_byte(0x10, OLED_CMD);    //---set high column address
-    oled_write_byte(0x40, OLED_CMD);    //--set start line address
-    oled_write_byte(0x81, OLED_CMD);    //--set contrast control register
-    oled_write_byte(0xff, OLED_CMD);    //brightness 0x00~0xff
-    oled_write_byte(0xa1, OLED_CMD);    //--set segment re-map 0 to 127
-    oled_write_byte(0xa6, OLED_CMD);    //--set normal display
-    oled_write_byte(0xa8, OLED_CMD);    //--set multiplex ratio(1 to 64)
-    oled_write_byte(0x3F, OLED_CMD);    //
-    oled_write_byte(0xa4, OLED_CMD);    //0xa4,Output follows RAM content;0xa5,Output ignores RAM content
-    oled_write_byte(0xd3, OLED_CMD);    //-set display offset
-    oled_write_byte(0x00, OLED_CMD);    //-not offset
-    oled_write_byte(0xd5, OLED_CMD);    //--set display clock divide ratio/oscillator frequency
-    oled_write_byte(0xf0, OLED_CMD);    //--set divide ratio
-    oled_write_byte(0xd9, OLED_CMD);    //--set pre-charge period
-    oled_write_byte(0x22, OLED_CMD);    //
-    oled_write_byte(0xda, OLED_CMD);    //--set com pins hardware configuration
+    oled_write_byte(0xAE, OLED_CMD); // display off
+    oled_write_byte(0x20, OLED_CMD); // Set Memory Addressing Mode
+    oled_write_byte(0x10, OLED_CMD); // 00,Horizontal Addressing Mode;01,Vertical Addressing Mode;10,Page Addressing Mode (RESET);11,Invalid
+    oled_write_byte(0xb0, OLED_CMD); // Set Page Start Address for Page Addressing Mode,0-7
+    oled_write_byte(0xc8, OLED_CMD); // Set COM Output Scan Direction
+    oled_write_byte(0x00, OLED_CMD); //---set low column address
+    oled_write_byte(0x10, OLED_CMD); //---set high column address
+    oled_write_byte(0x40, OLED_CMD); //--set start line address
+    oled_write_byte(0x81, OLED_CMD); //--set contrast control register
+    oled_write_byte(0xff, OLED_CMD); // brightness 0x00~0xff
+    oled_write_byte(0xa1, OLED_CMD); //--set segment re-map 0 to 127
+    oled_write_byte(0xa6, OLED_CMD); //--set normal display
+    oled_write_byte(0xa8, OLED_CMD); //--set multiplex ratio(1 to 64)
+    oled_write_byte(0x3F, OLED_CMD); //
+    oled_write_byte(0xa4, OLED_CMD); // 0xa4,Output follows RAM content;0xa5,Output ignores RAM content
+    oled_write_byte(0xd3, OLED_CMD); //-set display offset
+    oled_write_byte(0x00, OLED_CMD); //-not offset
+    oled_write_byte(0xd5, OLED_CMD); //--set display clock divide ratio/oscillator frequency
+    oled_write_byte(0xf0, OLED_CMD); //--set divide ratio
+    oled_write_byte(0xd9, OLED_CMD); //--set pre-charge period
+    oled_write_byte(0x22, OLED_CMD); //
+    oled_write_byte(0xda, OLED_CMD); //--set com pins hardware configuration
     oled_write_byte(0x12, OLED_CMD);
-    oled_write_byte(0xdb, OLED_CMD);    //--set vcomh
-    oled_write_byte(0x20, OLED_CMD);    //0x20,0.77xVcc
-    oled_write_byte(0x8d, OLED_CMD);    //--set DC-DC enable
-    oled_write_byte(0x14, OLED_CMD);    //
-    oled_write_byte(0xaf, OLED_CMD);    //--turn on oled panel
+    oled_write_byte(0xdb, OLED_CMD); //--set vcomh
+    oled_write_byte(0x20, OLED_CMD); // 0x20,0.77xVcc
+    oled_write_byte(0x8d, OLED_CMD); //--set DC-DC enable
+    oled_write_byte(0x14, OLED_CMD); //
+    oled_write_byte(0xaf, OLED_CMD); //--turn on oled panel
 }
 
-
 /**
-  * @brief          打开OLED显示
-  * @param[in]      none
-  * @retval         none
-  */
+ * @brief          打开OLED显示
+ * @param[in]      none
+ * @retval         none
+ */
 void OLED_display_on(void)
 {
     oled_write_byte(0x8d, OLED_CMD);
@@ -79,19 +77,17 @@ void OLED_display_on(void)
     oled_write_byte(0xaf, OLED_CMD);
 }
 
-
 /**
-  * @brief          关闭OLED显示
-  * @param[in]      none
-  * @retval         none
-  */
+ * @brief          关闭OLED显示
+ * @param[in]      none
+ * @retval         none
+ */
 void OLED_display_off(void)
 {
     oled_write_byte(0x8d, OLED_CMD);
     oled_write_byte(0x10, OLED_CMD);
     oled_write_byte(0xae, OLED_CMD);
 }
-
 
 /**
   * @brief          操作GRAM内存(128*8char数组)
@@ -126,16 +122,16 @@ void OLED_operate_gram(pen_typedef pen)
 }
 
 /**
-  * @brief          设置光标起点(x,y)
-  * @param[in]      x:x轴, 从 0 到 127
-  * @param[in]      y:y轴, 从 0 到 7
-  * @retval         none
-  */
+ * @brief          设置光标起点(x,y)
+ * @param[in]      x:x轴, 从 0 到 127
+ * @param[in]      y:y轴, 从 0 到 7
+ * @retval         none
+ */
 void OLED_set_pos(uint8_t x, uint8_t y)
 {
-    oled_write_byte((0xb0 + y), OLED_CMD);              //set page address y
-    oled_write_byte(((x&0xf0)>>4)|0x10, OLED_CMD);      //set column high address
-    oled_write_byte((x&0x0f), OLED_CMD);                //set column low address
+    oled_write_byte((0xb0 + y), OLED_CMD);               // set page address y
+    oled_write_byte(((x & 0xf0) >> 4) | 0x10, OLED_CMD); // set column high address
+    oled_write_byte((x & 0x0f), OLED_CMD);               // set column low address
 }
 
 /**
@@ -174,17 +170,16 @@ void OLED_draw_point(int8_t x, int8_t y, pen_typedef pen)
     }
 }
 
-
 /**
-  * @brief          画一条直线，从(x1,y1)到(x2,y2)
-  * @param[in]      x1: 起点
-  * @param[in]      y1: 起点
-  * @param[in]      x2: 终点
-  * @param[in]      y2: 终点
-  * @param[in]      pen: 操作类型,PEN_CLEAR,PEN_WRITE,PEN_INVERSION.
-  * @retval         none
-  */
-  
+ * @brief          画一条直线，从(x1,y1)到(x2,y2)
+ * @param[in]      x1: 起点
+ * @param[in]      y1: 起点
+ * @param[in]      x2: 终点
+ * @param[in]      y2: 终点
+ * @param[in]      pen: 操作类型,PEN_CLEAR,PEN_WRITE,PEN_INVERSION.
+ * @retval         none
+ */
+
 void OLED_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, pen_typedef pen)
 {
     uint8_t col = 0, row = 0;
@@ -193,8 +188,8 @@ void OLED_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, pen_typedef 
 
     if (y1 == y2)
     {
-        (x1 <= x2) ? (x_st = x1):(x_st = x2);
-        (x1 <= x2) ? (x_ed = x2):(x_ed = x1);
+        (x1 <= x2) ? (x_st = x1) : (x_st = x2);
+        (x1 <= x2) ? (x_ed = x2) : (x_ed = x1);
 
         for (col = x_st; col <= x_ed; col++)
         {
@@ -203,8 +198,8 @@ void OLED_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, pen_typedef 
     }
     else if (x1 == x2)
     {
-        (y1 <= y2) ? (y_st = y1):(y_st = y2);
-        (y1 <= y2) ? (y_ed = y2):(y_ed = y1);
+        (y1 <= y2) ? (y_st = y1) : (y_st = y2);
+        (y1 <= y2) ? (y_ed = y2) : (y_ed = y1);
 
         for (row = y_st; row <= y_ed; row++)
         {
@@ -216,8 +211,8 @@ void OLED_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, pen_typedef 
         k = ((float)(y2 - y1)) / (x2 - x1);
         b = (float)y1 - k * x1;
 
-        (x1 <= x2) ? (x_st = x1):(x_st = x2);
-        (x1 <= x2) ? (x_ed = x2):(x_ed = x2);
+        (x1 <= x2) ? (x_st = x1) : (x_st = x2);
+        (x1 <= x2) ? (x_ed = x2) : (x_ed = x2);
 
         for (col = x_st; col <= x_ed; col++)
         {
@@ -227,12 +222,12 @@ void OLED_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, pen_typedef 
 }
 
 /**
-  * @brief          显示一个字符
-  * @param[in]      row: 字符的开始行
-  * @param[in]      col: 字符的开始列
-  * @param[in]      chr: 字符
-  * @retval         none
-  */
+ * @brief          显示一个字符
+ * @param[in]      row: 字符的开始行
+ * @param[in]      col: 字符的开始列
+ * @param[in]      chr: 字符
+ * @retval         none
+ */
 void OLED_show_char(uint8_t row, uint8_t col, uint8_t chr)
 {
     uint8_t x = col * 6;
@@ -247,7 +242,7 @@ void OLED_show_char(uint8_t row, uint8_t col, uint8_t chr)
 
         for (t1 = 0; t1 < 8; t1++)
         {
-            if (temp&0x80)
+            if (temp & 0x80)
                 OLED_draw_point(x, y, PEN_WRITE);
             else
                 OLED_draw_point(x, y, PEN_CLEAR);
@@ -265,15 +260,15 @@ void OLED_show_char(uint8_t row, uint8_t col, uint8_t chr)
 }
 
 /**
-  * @brief          显示一个字符串
-  * @param[in]      row: 字符串的开始行
-  * @param[in]      col: 字符串的开始列
-  * @param[in]      chr: 字符串
-  * @retval         none
-  */
+ * @brief          显示一个字符串
+ * @param[in]      row: 字符串的开始行
+ * @param[in]      col: 字符串的开始列
+ * @param[in]      chr: 字符串
+ * @retval         none
+ */
 void OLED_show_string(uint8_t row, uint8_t col, uint8_t *chr)
 {
-    uint8_t n =0;
+    uint8_t n = 0;
 
     while (chr[n] != '\0')
     {
@@ -289,22 +284,21 @@ void OLED_show_string(uint8_t row, uint8_t col, uint8_t *chr)
     }
 }
 
-
 /**
-  * @brief          格式输出
-  * @param[in]      row: 开始列，0 <= row <= 4;
-  * @param[in]      col: 开始行， 0 <= col <= 20;
-  * @param[in]      *fmt:格式化输出字符串
-  * @note           如果字符串长度大于一行，额外的字符会换行
-  * @retval         none
-  */
-void OLED_printf(uint8_t row, uint8_t col, const char *fmt,...)
+ * @brief          格式输出
+ * @param[in]      row: 开始列，0 <= row <= 4;
+ * @param[in]      col: 开始行， 0 <= col <= 20;
+ * @param[in]      *fmt:格式化输出字符串
+ * @note           如果字符串长度大于一行，额外的字符会换行
+ * @retval         none
+ */
+void OLED_printf(uint8_t row, uint8_t col, const char *fmt, ...)
 {
     static uint8_t LCD_BUF[128] = {0};
     static va_list ap;
     uint8_t remain_size = 0;
 
-    if ((row > 4) || (col > 20) )
+    if ((row > 4) || (col > 20))
     {
         return;
     }
@@ -322,10 +316,10 @@ void OLED_printf(uint8_t row, uint8_t col, const char *fmt,...)
 }
 
 /**
-  * @brief          发送数据到OLED的GRAM
-  * @param[in]      none
-  * @retval         none
-  */
+ * @brief          发送数据到OLED的GRAM
+ * @param[in]      none
+ * @retval         none
+ */
 void OLED_refresh_gram(void)
 {
     uint8_t i, n;
@@ -340,13 +334,11 @@ void OLED_refresh_gram(void)
     }
 }
 
-
-
 /**
-  * @brief          显示RM的LOGO
-  * @param[in]      none
-  * @retval         none
-  */
+ * @brief          显示RM的LOGO
+ * @param[in]      none
+ * @retval         none
+ */
 void OLED_LOGO(void)
 {
     uint8_t temp_char = 0;
@@ -354,21 +346,20 @@ void OLED_LOGO(void)
     uint8_t i = 0;
     OLED_operate_gram(PEN_CLEAR);
 
-
-    for(; y < 64; y += 8)
+    for (; y < 64; y += 8)
     {
-        for(x = 0; x < 128; x++)
+        for (x = 0; x < 128; x++)
         {
-            temp_char = LOGO_BMP[x][y/8];
-            for(i = 0; i < 8; i++)
+            temp_char = LOGO_BMP[x][y / 8];
+            for (i = 0; i < 8; i++)
             {
-                if(temp_char & 0x80)
+                if (temp_char & 0x80)
                 {
-                    OLED_draw_point(x, y + i,PEN_WRITE);
+                    OLED_draw_point(x, y + i, PEN_WRITE);
                 }
                 else
                 {
-                    OLED_draw_point(x,y + i,PEN_CLEAR);
+                    OLED_draw_point(x, y + i, PEN_CLEAR);
                 }
                 temp_char <<= 1;
             }
