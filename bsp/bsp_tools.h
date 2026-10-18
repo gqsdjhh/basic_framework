@@ -1,3 +1,6 @@
+#ifndef BSP_TOOLS_H
+#define BSP_TOOLS_H
+
 #include "cmsis_os.h"
 #include "bsp_log.h"
 
@@ -14,4 +17,6 @@
  * @return uint32_t 信号量,用于唤醒该任务
  */
 uint32_t CreateCallbackTask(char *name, void *cbk, void *ins, osPriority priority);
+
+#endif // BSP_TOOLS_H
 
