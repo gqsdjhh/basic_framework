@@ -1,3 +1,6 @@
+#ifndef BSP_SPI_H
+#define BSP_SPI_H
+
 #include "spi.h"
 #include "stdint.h"
 #include "gpio.h"
@@ -25,7 +28,7 @@ typedef struct spi_ins_temp
     uint8_t rx_size;               // 本次接收的数据长度
     uint8_t *rx_buffer;            // 本次接收的数据缓冲区
     uint8_t CS_State;              // 片选信号状态,用于中断模式下的片选控制
-    uint8_t * cs_pin_state;        // 片选信号状态,用于中断模式下的片选控制
+    volatile uint8_t *cs_pin_state; // 片选信号状态,用于中断模式下的片选控制
     void (*callback)(struct spi_ins_temp *); // 接收回调函数
     void *id;                                // 模块指针
 } SPIInstance;
@@ -96,3 +99,5 @@ void SPITransRecv(SPIInstance *spi_ins, uint8_t *ptr_data_rx, uint8_t *ptr_data_
  * @todo 是否直接将mode作为transmit/recv的参数,而不是作为spi实例的属性?两者各有优劣
  */
 void SPISetMode(SPIInstance *spi_ins, SPI_TXRX_MODE_e spi_mode);
+
+#endif // BSP_SPI_H
