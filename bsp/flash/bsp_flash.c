@@ -47,29 +47,30 @@ void flash_erase_address(uint32_t address, uint16_t len)
   */
 int8_t flash_write_single_address(uint32_t start_address, uint32_t *buf, uint32_t len)
 {
-    static uint32_t uw_address;
-    static uint32_t end_address;
-    static uint32_t *data_buf;
-    static uint32_t data_len;
+    uint32_t uw_address = start_address;
+    uint32_t end_address = get_next_flash_address(start_address);
+    uint32_t *data_buf = buf;
+    uint32_t data_len = 0;
+
+    if (len == 0)
+    {
+        return 0;
+    }
 
     HAL_FLASH_Unlock();
 
-    uw_address = start_address;
-    end_address = get_next_flash_address(start_address);
-    data_buf = buf;
-    data_len = 0;
-
-    while (uw_address <= end_address)
+    // end_address is the start of the next sector and must not be written.
+    while (uw_address < end_address)
     {
-
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD,uw_address, *data_buf) == HAL_OK)
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, uw_address, *data_buf) == HAL_OK)
         {
             uw_address += 4;
             data_buf++;
             data_len++;
             if (data_len == len)
             {
-                break;
+                HAL_FLASH_Lock();
+                return 0;
             }
         }
         else
@@ -80,7 +81,7 @@ int8_t flash_write_single_address(uint32_t start_address, uint32_t *buf, uint32_
     }
 
     HAL_FLASH_Lock();
-    return 0;
+    return -1; // write range exceeds the current sector
 }
 
 /**
@@ -105,6 +106,11 @@ int8_t flash_write_muli_address(uint32_t start_address, uint32_t end_address, ui
     uint32_t *data_buf;
     uint32_t data_len;
 
+    if (len == 0)
+    {
+        return 0;
+    }
+
     HAL_FLASH_Unlock();
 
     uw_address = start_address;
@@ -112,14 +118,15 @@ int8_t flash_write_muli_address(uint32_t start_address, uint32_t end_address, ui
     data_len = 0;
     while (uw_address <= end_address)
     {
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD,uw_address, *data_buf) == HAL_OK)
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, uw_address, *data_buf) == HAL_OK)
         {
             uw_address += 4;
             data_buf++;
             data_len++;
             if (data_len == len)
             {
-                break;
+                HAL_FLASH_Lock();
+                return 0;
             }
         }
         else
@@ -129,10 +136,9 @@ int8_t flash_write_muli_address(uint32_t start_address, uint32_t end_address, ui
         }
     }
 
-    HAL_FLASH_Lock(); 
-    return 0;
+    HAL_FLASH_Lock();
+    return -1; // write range exceeds the provided address range
 }
-
 
 /**
   * @brief          read data for flash
