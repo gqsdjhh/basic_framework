@@ -1,5 +1,5 @@
-#include "bsp_dwt.h"
 #include "ist8310.h"
+#include "bsp_dwt.h"
 #include "bsp_log.h"
 #include <memory.h>
 #include <stdlib.h>
@@ -58,7 +58,8 @@ IST8310Instance *IST8310Init(IST8310_Init_Config_s *config)
 {
     static const uint8_t sleepTime = 50; // 50ms,ist8310的复位时间
     uint8_t check_who_i_am = 0;          // 用于检测ist8310是否连接成功
-    // 这个变量只会用到一次,出了这个函数就没用了,所以不用分配空间,直接定义在栈上(因为多看一眼就会爆炸)
+    uint8_t check_write_flag = 0;        // 用于检测ist8310是否写入成功
+    // 这些变量只会用到一次,出了这个函数就没用了,所以不用分配空间,直接定义在栈上(因为多看一眼就会爆炸)
 
     // 分配空间,清除flash防止已经填充的垃圾值
     IST8310Instance *ist = (IST8310Instance *)malloc(sizeof(IST8310Instance));
@@ -87,10 +88,10 @@ IST8310Instance *IST8310Init(IST8310_Init_Config_s *config)
 
     // 进行初始化配置写入并检查是否写入成功,这里用循环把最上面初始化数组的东西都写进去
     for (uint8_t i = 0; i < IST8310_WRITE_REG_NUM; i++)
-    { // 写入配置,写一句就读一下看看ist8310是否仍然在线
+    { // 写入配置,写一句就读一下看看ist8310是否写入成功
         IICAccessMem(ist->iic, ist8310_write_reg_data_error[i][0], &ist8310_write_reg_data_error[i][1], 1, IIC_WRITE_MEM, 1);
-        IICAccessMem(ist->iic, ist8310_write_reg_data_error[i][0], &check_who_i_am, 1, IIC_READ_MEM, 1); // 读回自身id
-        if (check_who_i_am != ist8310_write_reg_data_error[i][1])
+        IICAccessMem(ist->iic, ist8310_write_reg_data_error[i][0], &check_write_flag, 1, IIC_READ_MEM, 1); // 读回写入值
+        if (check_write_flag != ist8310_write_reg_data_error[i][1])
             while (1)
                 LOGERROR("[ist8310] init error, code %d", ist8310_write_reg_data_error[i][2]); // 掉线/写入失败/未知错误,会返回对应的错误码
     }
